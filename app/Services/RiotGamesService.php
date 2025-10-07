@@ -21,13 +21,28 @@ class RiotGamesService
     public function __construct()
     {
         $this->apiKey = config('services.riot.api_key');
-        $this->client = new Client([
+        
+        // Verificar se a chave da API está configurada
+        if (!$this->apiKey || $this->apiKey === 'your_riot_api_key_here') {
+            Log::warning('Riot API key not configured or using default value');
+            throw new \Exception('Riot API key not configured. Please set RIOT_API_KEY in your .env file.');
+        }
+        
+        // Configuração do cliente HTTP
+        $clientConfig = [
             'timeout' => 30,
             'headers' => [
                 'X-Riot-Token' => $this->apiKey,
                 'Accept' => 'application/json',
             ],
-        ]);
+        ];
+
+        // Em desenvolvimento, desabilita verificação SSL se necessário
+        if (config('app.debug') && config('app.env') === 'local') {
+            $clientConfig['verify'] = false;
+        }
+
+        $this->client = new Client($clientConfig);
     }
 
     /**
@@ -156,19 +171,28 @@ class RiotGamesService
         
         return Cache::remember($cacheKey, 900, function () use ($puuid, $region, $count, $start) {
             try {
-                $response = $this->client->get(
-                    "{$this->regions['americas']}/tft/match/v1/matches/by-puuid/{$puuid}/ids",
-                    [
-                        'query' => [
-                            'count' => $count,
-                            'start' => $start,
-                        ]
+                // Validar se o PUUID parece válido (deve ser uma string longa sem caracteres especiais)
+                if (strlen($puuid) < 36 || strpos($puuid, '#') !== false) {
+                    Log::error("Invalid PUUID format: " . $puuid);
+                    throw new \InvalidArgumentException("Invalid PUUID format");
+                }
+
+                $url = "{$this->regions[$region]}/tft/match/v1/matches/by-puuid/{$puuid}/ids";
+                Log::info("Fetching match IDs from URL: " . $url);
+                
+                $response = $this->client->get($url, [
+                    'query' => [
+                        'count' => $count,
+                        'start' => $start,
                     ]
-                );
+                ]);
                 
                 return json_decode($response->getBody()->getContents(), true);
             } catch (RequestException $e) {
-                Log::error("Error fetching match IDs: " . $e->getMessage());
+                Log::error("Error fetching match IDs for PUUID '{$puuid}': " . $e->getMessage());
+                return null;
+            } catch (\InvalidArgumentException $e) {
+                Log::error("Invalid PUUID provided: " . $e->getMessage());
                 return null;
             }
         });

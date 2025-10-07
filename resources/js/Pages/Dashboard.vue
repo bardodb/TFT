@@ -12,12 +12,12 @@
           </p>
         </div>
         <div class="mt-4 flex md:mt-0 md:ml-4">
-          <button
-            type="button"
+          <Link
+            :href="route('matches.index')"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Sincronizar Partidas
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -125,14 +125,23 @@
         <!-- Best Builds -->
         <div class="bg-white shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Melhores Builds
-            </h3>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Melhores Builds
+              </h3>
+              <Link
+                :href="route('builds.index')"
+                class="text-sm text-blue-600 hover:text-blue-500 font-medium"
+              >
+                Ver todas →
+              </Link>
+            </div>
             <div class="space-y-3">
-              <div
+              <Link
                 v-for="build in bestBuilds.slice(0, 5)"
                 :key="build.id"
-                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                :href="route('builds.index')"
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <div>
                   <p class="text-sm font-medium text-gray-900">
@@ -148,7 +157,7 @@
                   </p>
                   <p class="text-xs text-gray-500">Taxa de Vitória</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -156,14 +165,23 @@
         <!-- Popular Compositions -->
         <div class="bg-white shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Composições Populares
-            </h3>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Composições Populares
+              </h3>
+              <Link
+                :href="route('builds.index')"
+                class="text-sm text-blue-600 hover:text-blue-500 font-medium"
+              >
+                Ver todas →
+              </Link>
+            </div>
             <div class="space-y-3">
-              <div
+              <Link
                 v-for="composition in popularCompositions.slice(0, 5)"
                 :key="composition.composition_name"
-                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                :href="route('builds.index')"
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <div>
                   <p class="text-sm font-medium text-gray-900">
@@ -179,7 +197,7 @@
                   </p>
                   <p class="text-xs text-gray-500">Usos</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -194,7 +212,7 @@
               <div
                 v-for="augment in bestAugments.slice(0, 5)"
                 :key="augment.id"
-                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div>
                   <p class="text-sm font-medium text-gray-900">
@@ -225,7 +243,7 @@
               <div
                 v-for="item in bestItems.slice(0, 5)"
                 :key="item.id"
-                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div>
                   <p class="text-sm font-medium text-gray-900">
@@ -252,6 +270,7 @@
 
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { Link } from '@inertiajs/vue3'
 
 defineProps({
   globalStats: Object,

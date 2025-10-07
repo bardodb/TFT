@@ -62,9 +62,9 @@
       </div>
 
       <!-- Builds Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div v-if="builds.data && builds.data.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         <div
-          v-for="build in builds"
+          v-for="build in builds.data"
           :key="build.id"
           class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
         >
@@ -156,14 +156,15 @@
 
             <!-- Build Actions -->
             <div class="flex space-x-2">
-              <button
-                type="button"
+              <Link
+                :href="route('builds.show', build.id)"
                 class="flex-1 inline-flex justify-center items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Ver Detalhes
-              </button>
+              </Link>
               <button
                 type="button"
+                @click="copyBuild(build)"
                 class="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Copiar Build
@@ -174,7 +175,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="builds.length === 0" class="text-center py-12">
+      <div v-else class="bg-white shadow rounded-lg text-center py-12">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
         </svg>
@@ -196,56 +197,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
-const builds = ref([
-  // Dados de exemplo - serão substituídos por dados reais da API
-  {
-    id: 1,
-    composition_name: 'Kai\'Sa Carry',
-    placement: 1,
-    win_rate: 67.5,
-    pick_rate: 15.2,
-    avg_placement: 3.2,
-    description: 'Composição focada em Kai\'Sa como carry principal com suporte de campeões de custo alto.',
-    champions: [
-      { id: 1, name: 'Kai\'Sa' },
-      { id: 2, name: 'Aatrox' },
-      { id: 3, name: 'Azir' },
-      { id: 4, name: 'Bel\'Veth' },
-      { id: 5, name: 'Kassadin' },
-      { id: 6, name: 'Malzahar' },
-      { id: 7, name: 'Rek\'Sai' },
-      { id: 8, name: 'Kha\'Zix' },
-    ],
-    augments: [
-      { id: 1, name: 'Voidborn' },
-      { id: 2, name: 'Adaptive Evolution' },
-      { id: 3, name: 'Void Resonance' },
-    ],
-  },
-  {
-    id: 2,
-    composition_name: 'Demacia Carry',
-    placement: 2,
-    win_rate: 58.3,
-    pick_rate: 22.1,
-    avg_placement: 3.8,
-    description: 'Composição Demacia com foco em campeões de custo alto e sinergias defensivas.',
-    champions: [
-      { id: 1, name: 'Lux' },
-      { id: 2, name: 'Garen' },
-      { id: 3, name: 'Jarvan IV' },
-      { id: 4, name: 'Poppy' },
-      { id: 5, name: 'Galio' },
-      { id: 6, name: 'Sona' },
-    ],
-    augments: [
-      { id: 1, name: 'Demacian Might' },
-      { id: 2, name: 'Shield Wall' },
-      { id: 3, name: 'Radiant Aegis' },
-    ],
-  },
-])
+const props = defineProps({
+  builds: {
+    type: Object,
+    default: () => ({ data: [] })
+  }
+})
+
+const copyBuild = (build) => {
+  const buildText = `
+Build: ${build.composition_name || 'Composição Desconhecida'}
+Colocação: ${build.placement}º
+Taxa de Vitória: ${build.win_rate?.toFixed(1) || '0'}%
+
+Campeões: ${build.champions?.map(c => c.name).join(', ') || 'N/A'}
+Augments: ${build.augments?.map(a => a.name).join(', ') || 'N/A'}
+  `.trim()
+
+  navigator.clipboard.writeText(buildText).then(() => {
+    alert('Build copiada para a área de transferência!')
+  }).catch(() => {
+    alert('Erro ao copiar build')
+  })
+}
 </script>

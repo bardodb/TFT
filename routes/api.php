@@ -32,6 +32,7 @@ Route::prefix('tft')->group(function () {
     Route::get('/top-players', [TftApiController::class, 'getTopPlayers']);
     Route::post('/sync-matches', [TftApiController::class, 'syncMatches']);
     Route::get('/player', [TftApiController::class, 'getPlayer']);
+    Route::get('/player-by-riot-id', [TftApiController::class, 'getPlayerByRiotId']);
     
     // Analytics endpoints
     Route::prefix('analytics')->group(function () {

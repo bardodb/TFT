@@ -158,6 +158,44 @@ class TftApiController extends Controller
     }
 
     /**
+     * Get player information by Riot ID (gameName + tagLine)
+     */
+    public function getPlayerByRiotId(Request $request): JsonResponse
+    {
+        $request->validate([
+            'gameName' => 'required|string',
+            'tagLine' => 'required|string',
+            'region' => 'required|string|in:americas,asia,europe',
+        ]);
+
+        $gameName = $request->input('gameName');
+        $tagLine = $request->input('tagLine');
+        $region = $request->input('region');
+
+        try {
+            $playerData = $this->riotService->getPlayerByRiotId($gameName, $tagLine, $region);
+            
+            if (!$playerData) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Player not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $playerData,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch player data: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get top players from leaderboards
      */
     public function getTopPlayers(Request $request): JsonResponse
