@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    
+    input,
+    select,
+    textarea {
+        cursor: text;
+    }
+}
